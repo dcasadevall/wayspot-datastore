@@ -81,6 +81,13 @@ namespace VPSTour.lib.KVStore.KVStoreIo {
             await PutText(uri, value);
         }
 
+        public async Task DeleteAllKeys() {
+            await DeleteRequest(CollectionsUri); 
+            
+            // Set init back to false so the collection is created again when handling keys
+            isInit = false;
+        }
+
         /// <summary>
         /// Perform a POST request of the given text
         /// </summary>
@@ -111,6 +118,21 @@ namespace VPSTour.lib.KVStore.KVStoreIo {
         /// <param name="text"></param>
         private async Task PutText(string uri, string text) {
             using (var request = UnityWebRequest.Put(uri, text)) {
+                request.SetRequestHeader("Content-Type", "text/plain");
+                request.SetRequestHeader("kvstoreio_api_key", apiKey);
+
+                await request.SendWebRequest().WaitAsync();
+
+                HandleResult(request);
+            }
+        }
+        
+        /// <summary>
+        /// Perform a DELETE request at the given uri
+        /// </summary>
+        /// <param name="uri"></param>
+        private async Task DeleteRequest(string uri) {
+            using (var request = UnityWebRequest.Delete(uri)) {
                 request.SetRequestHeader("Content-Type", "text/plain");
                 request.SetRequestHeader("kvstoreio_api_key", apiKey);
 

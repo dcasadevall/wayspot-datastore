@@ -19,5 +19,6 @@ namespace VPSTour.lib.WayspotAnchorStore {
     public interface IPayloadStore {
         Task Persist(IWayspotAnchor[] wayspotAnchors);
         Task<WayspotAnchorPayload[]> Restore();
+        Task Clear();
     }
 }

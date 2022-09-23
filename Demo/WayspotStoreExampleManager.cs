@@ -4,6 +4,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Niantic.ARDK;
 using Niantic.ARDK.AR;
 using Niantic.ARDK.AR.ARSessionEventArgs;
@@ -23,6 +25,8 @@ namespace VPSTour.Demo {
     /// <summary>
     /// This example is a carbon copy of the <see cref="WayspotAnchorExampleManager"/>, except
     /// we add waypoint persistence via <see cref="IPayloadStore"/>.
+    ///
+    /// Look for //------- Store Logic -----------/ blocks for changes
     /// </summary>
     public class WayspotStoreExampleManager : MonoBehaviour {
         [Tooltip("The anchor that will be placed")] [SerializeField]
@@ -94,7 +98,7 @@ namespace VPSTour.Demo {
         }
 
         /// Saves all of the existing wayspot anchors
-        public void SaveWayspotAnchors() {
+        public async void SaveWayspotAnchors() {
             if (_wayspotAnchorTrackers.Count > 0) {
                 var wayspotAnchors = WayspotAnchorService.GetAllWayspotAnchors();
 
@@ -102,19 +106,36 @@ namespace VPSTour.Demo {
                 var saveableAnchors =
                     wayspotAnchors.Where(a => a.Status == WayspotAnchorStatusCode.Limited ||
                                               a.Status == WayspotAnchorStatusCode.Success);
-                var payloads = saveableAnchors.Select(a => a.Payload);
-
-                WayspotAnchorDataUtility.SaveLocalPayloads(payloads.ToArray());
+                
+                //---------------------- Store Logic ----------------------//
+                // Commented code from original sample that saves payloads locally
+                // var payloads = saveableAnchors.Select(a => a.Payload);
+                //
+                // WayspotAnchorDataUtility.SaveLocalPayloads(payloads.ToArray());
+                
+                // This sample always overrides persisted anchors with whatever anchors
+                // exist in the scene, so clear the whole store before we save the local
+                // anchors to it.
+                await Providers.ProvidePayloadStore().Clear();
+                await Providers.ProvidePayloadStore().Persist(saveableAnchors.ToArray());
             } else {
-                WayspotAnchorDataUtility.SaveLocalPayloads(Array.Empty<WayspotAnchorPayload>());
+                //---------------------- Store Logic ----------------------//
+                // Commented code from original sample that saves payloads locally
+                // WayspotAnchorDataUtility.SaveLocalPayloads(Array.Empty<WayspotAnchorPayload>());
+                await Providers.ProvidePayloadStore().Clear();
             }
 
             _statusLog.text = $"Saved {_wayspotAnchorTrackers.Count} Wayspot Anchors.";
         }
 
         /// Loads all of the saved wayspot anchors
-        public void LoadWayspotAnchors() {
-            var payloads = WayspotAnchorDataUtility.LoadLocalPayloads();
+        public async void LoadWayspotAnchors() {
+            //---------------------- Store Logic ----------------------//
+            // Commented code from original sample that saves payloads locally
+            // var payloads = WayspotAnchorDataUtility.LoadLocalPayloads();
+            Debug.Log("Restoring Wayspot Anchors...");
+            var payloads = await Providers.ProvidePayloadStore().Restore();
+            
             if (payloads.Length > 0) {
                 foreach (var payload in payloads) {
                     var anchors = WayspotAnchorService.RestoreWayspotAnchors(payload);
@@ -217,14 +238,6 @@ namespace VPSTour.Demo {
             CreateWayspotAnchorGameObject(anchors[0], position, rotation, true);
 
             _statusLog.text = "Anchor placed.";
-
-            StartCoroutine(PersistWayspotAnchorDelayed());
-        }
-
-        private IEnumerator PersistWayspotAnchorDelayed(IWayspotAnchor[] anchors) {
-            yield return new WaitForEndOfFrame();
-            IPayloadStore payloadStore = Providers.ProvidePayloadStore();
-            payloadStore.Persist(anchors);
         }
 
         private GameObject CreateWayspotAnchorGameObject(IWayspotAnchor anchor,

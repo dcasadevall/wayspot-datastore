@@ -43,5 +43,9 @@ namespace VPSTour.lib.WayspotAnchorStore {
 
             return payloads.ToArray();
         }
+
+        public Task Clear() {
+            return kvStore.DeleteAllKeys();
+        }
     }
 }

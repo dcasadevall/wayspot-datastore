@@ -20,5 +20,6 @@ namespace VPSTour.lib.WayspotAnchorStore {
     public interface ICallbackPayloadStore {
         void Persist(IWayspotAnchor[] wayspotAnchors, Action resultHandler);
         void Restore(Action<WayspotAnchorPayload[]> resultHandler);
+        void Clear(Action resultHandler);
     }
 }

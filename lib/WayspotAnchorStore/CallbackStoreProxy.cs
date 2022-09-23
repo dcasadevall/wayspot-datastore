@@ -28,5 +28,12 @@ namespace VPSTour.lib.WayspotAnchorStore {
             void ContextCallback(object state) => resultHandler.Invoke((WayspotAnchorPayload[]) state);
             task.ContinueWith(t => ExecutionContext.Run(context, ContextCallback, t.Result));
         }
+
+        public void Clear(Action resultHandler) {
+            Task task = payloadStore.Clear();
+            ExecutionContext context = ExecutionContext.Capture();
+            void ContextCallback(object state) => resultHandler.Invoke();
+            task.ContinueWith(t => ExecutionContext.Run(context, ContextCallback, null));
+        }
     }
 }

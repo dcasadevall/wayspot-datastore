@@ -30,5 +30,11 @@ namespace VPSTour.lib.KVStore {
         /// <param name="value"></param>
         /// <exception cref="Exception">Thrown if an error is received from the server</exception>
         public Task SetValue(string key, string value);
+
+        /// <summary>
+        /// Deletes all keys in the key value store
+        /// </summary>
+        /// <returns></returns>
+        public Task DeleteAllKeys();
     }
 }
