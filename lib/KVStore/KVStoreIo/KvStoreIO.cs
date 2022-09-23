@@ -1,10 +1,11 @@
 using System;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.Networking;
 using VPSTour.lib.Async;
 
-namespace VPSTour.lib.KVStoreIo {
+namespace VPSTour.lib.KVStore.KVStoreIo {
     /// <summary>
     /// <see cref="IKvStore"/> Implementation that uses KVStore.io REST API
     /// </summary>
@@ -17,6 +18,10 @@ namespace VPSTour.lib.KVStoreIo {
         private bool isInit;
 
         public KvStoreIO(string apiKey) {
+            if (string.IsNullOrEmpty(apiKey)) {
+                throw new Exception("Empty API Key");
+            }
+            
             this.apiKey = apiKey;
         }
 
@@ -25,13 +30,15 @@ namespace VPSTour.lib.KVStoreIo {
         /// </summary>
         private async Task Init() {
             // Find out if collection exists
-            var result = await GetRequest(CollectionsUri);
+            var responseJson = await GetRequest(CollectionsUri);
+
             
             // This is definitely hacky, but hey kvstore.io free tier only allows
             // 1 collection so we make assumptions and say that if the response
             // contains the collection name, it must be created.
-            // This saves us from any json parsing for this simple library
-            if (result.Contains(CollectionName)) {
+            // This allows us to simplify the json parsing
+            var collectionList = JsonUtility.FromJson<JsonCollectionList>(responseJson);
+            if (collectionList.total_collections == 1) {
                 return;
             }
             
@@ -45,7 +52,9 @@ namespace VPSTour.lib.KVStoreIo {
             }
             
             var uri = string.Format(KeyValueUriFormat, CollectionName, key);
-            return await GetRequest(uri);
+            var responseJson = await GetRequest(uri);
+            var jsonValue = JsonUtility.FromJson<JsonValue>(responseJson);
+            return jsonValue.value;
         }
 
         /// <inheritdoc cref="IKvStore.SetValue(string, string)"/>
