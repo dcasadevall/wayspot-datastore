@@ -8,10 +8,10 @@ namespace VPSTour.lib.WayspotAnchorStore {
     /// <see cref="ICallbackPayloadStore"/> implementation that converts a given <see cref="IPayloadStore"/>
     /// implementation into the callback version.
     /// </summary>
-    class TaskedCallbackPayloadStoreProxy : ICallbackPayloadStore {
+    public class CallbackStoreProxy : ICallbackPayloadStore {
         private readonly IPayloadStore payloadStore;
 
-        public TaskedCallbackPayloadStoreProxy(IPayloadStore payloadStore) {
+        public CallbackStoreProxy(IPayloadStore payloadStore) {
             this.payloadStore = payloadStore;
         }
 

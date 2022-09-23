@@ -1,0 +1,17 @@
+{
+    "name": "VPSTour",
+    "rootNamespace": "",
+    "references": [
+        "GUID:018c11274ebe24ac693bfbdb72379f2c",
+        "GUID:96df8de2838c640e6ae9eae03f060100"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
