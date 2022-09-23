@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace VPSTour.lib.KVStore.io {
+namespace VPSTour.lib.KVStoreIo {
     [CreateAssetMenu(fileName = "KvStoreConfig", menuName = "VPS Tour/KvStoreConfig", order = 1)]
     public class KvStoreConfig : ScriptableObject {
         [SerializeField]

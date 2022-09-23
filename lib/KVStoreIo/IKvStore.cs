@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace VPSTour.lib.KVStore.io {
+namespace VPSTour.lib.KVStoreIo {
     /// <summary>
     /// Implementations of this interface will handle reading / writing from and to a
     /// key value store. Implementations are assumed to be thread safe.

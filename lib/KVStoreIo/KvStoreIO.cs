@@ -4,13 +4,13 @@ using System.Threading.Tasks;
 using UnityEngine.Networking;
 using VPSTour.lib.Async;
 
-namespace VPSTour.lib.KVStore.io {
+namespace VPSTour.lib.KVStoreIo {
     /// <summary>
     /// <see cref="IKvStore"/> Implementation that uses KVStore.io REST API
     /// </summary>
     public class KvStoreIO : IKvStore {
         private const string CollectionName = "wayspot_anchors";
-        private const string CollectionCreateUri = "https://api.kvstore.io/collections";
+        private const string CollectionsUri = "https://api.kvstore.io/collections";
         private const string KeyValueUriFormat = "https://api.kvstore.io/collections/{0}/items/{1}";
         
         private string apiKey;
@@ -23,8 +23,19 @@ namespace VPSTour.lib.KVStore.io {
         /// <summary>
         /// Initializes the KVStore.IO collection if needed
         /// </summary>
-        private Task Init() {
-            return PutText(CollectionCreateUri, $"{{'collection' : '{CollectionName}'}}");
+        private async Task Init() {
+            // Find out if collection exists
+            var result = await GetRequest(CollectionsUri);
+            
+            // This is definitely hacky, but hey kvstore.io free tier only allows
+            // 1 collection so we make assumptions and say that if the response
+            // contains the collection name, it must be created.
+            // This saves us from any json parsing for this simple library
+            if (result.Contains(CollectionName)) {
+                return;
+            }
+            
+            await PostJson(CollectionsUri, $"{{\"collection\" : \"{CollectionName}\"}}");
         }
 
         /// <inheritdoc cref="IKvStore.GetValue(string)"/>
@@ -44,7 +55,7 @@ namespace VPSTour.lib.KVStore.io {
             }
             
             var uri = string.Format(KeyValueUriFormat, CollectionName, key);
-            await PostText(uri, value);
+            await PutText(uri, value);
         }
 
         /// <summary>
@@ -52,7 +63,10 @@ namespace VPSTour.lib.KVStore.io {
         /// </summary>
         /// <param name="uri"></param>
         /// <param name="text"></param>
-        private async Task PostText(string uri, string text) {
+        private async Task PostJson(string uri, string text) {
+            // Posting Json requires that escaping is respected.
+            // We have to use our own encoding (UnityWebRequest.Post()) urlencodes
+            // the text for us, which we don't want
             var textBytes = Encoding.UTF8.GetBytes(text);
 
             using (var request = new UnityWebRequest(uri, "POST")) {
@@ -73,11 +87,7 @@ namespace VPSTour.lib.KVStore.io {
         /// <param name="uri"></param>
         /// <param name="text"></param>
         private async Task PutText(string uri, string text) {
-            var textBytes = Encoding.UTF8.GetBytes(text);
-
-            using (var request = new UnityWebRequest(uri, "PUT")) {
-                request.uploadHandler = new UploadHandlerRaw(textBytes);
-                request.downloadHandler = new DownloadHandlerBuffer();
+            using (var request = UnityWebRequest.Put(uri, text)) {
                 request.SetRequestHeader("Content-Type", "text/plain");
                 request.SetRequestHeader("kvstoreio_api_key", apiKey);
 
@@ -94,6 +104,7 @@ namespace VPSTour.lib.KVStore.io {
         /// <returns>The response text if successful, or null otherwise</returns>
         private async Task<string> GetRequest(string uri) {
             using (var request = UnityWebRequest.Get(uri)) {
+                request.SetRequestHeader("kvstoreio_api_key", apiKey);
                 await request.SendWebRequest().WaitAsync();
 
                 return HandleResult(request);
@@ -114,9 +125,9 @@ namespace VPSTour.lib.KVStore.io {
                     return request.downloadHandler.text;
                 case UnityWebRequest.Result.ConnectionError:
                 case UnityWebRequest.Result.DataProcessingError:
-                    throw new Exception("Error: " + request.error);
+                    throw new Exception($"{request.uri}. Error: {request.error}");
                 case UnityWebRequest.Result.ProtocolError:
-                    throw new Exception("HTTP Error: " + request.error);
+                    throw new Exception($"{request.uri}. HTTP Error: {request.error}");
                 case UnityWebRequest.Result.InProgress:
                     throw new Exception("Result not available");
                 default:
