@@ -8,6 +8,7 @@ namespace VPSTour.lib.KVStore.io {
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
+        /// <exception cref="Exception">Thrown if an error is received from the server</exception>
         public Task<string> GetValue(string key);
 
         /// <summary>

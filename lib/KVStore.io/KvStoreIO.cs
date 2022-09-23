@@ -14,6 +14,7 @@ namespace VPSTour.lib.KVStore.io {
         private const string KeyValueUriFormat = "https://api.kvstore.io/collections/{0}/items/{1}";
         
         private string apiKey;
+        private bool isInit;
 
         public KvStoreIO(string apiKey) {
             this.apiKey = apiKey;
@@ -22,25 +23,28 @@ namespace VPSTour.lib.KVStore.io {
         /// <summary>
         /// Initializes the KVStore.IO collection if needed
         /// </summary>
-        public async void Init() {
-            var result = await PutText(CollectionCreateUri,
-                                       $"{{'collection' : '{CollectionName}'}}");
-            
-            if (!result) {
-                throw new Exception("Unable to create KVStore collection");
-            }
+        private Task Init() {
+            return PutText(CollectionCreateUri, $"{{'collection' : '{CollectionName}'}}");
         }
 
         /// <inheritdoc cref="IKvStore.GetValue(string)"/>
-        public Task<string> GetValue(string key) {
+        public async Task<string> GetValue(string key) {
+            if (!isInit) {
+                await Init();
+            }
+            
             var uri = string.Format(KeyValueUriFormat, CollectionName, key);
-            return GetRequest(uri);
+            return await GetRequest(uri);
         }
 
         /// <inheritdoc cref="IKvStore.SetValue(string, string)"/>
-        public Task SetValue(string key, string value) {
+        public async Task SetValue(string key, string value) {
+            if (!isInit) {
+                await Init();
+            }
+            
             var uri = string.Format(KeyValueUriFormat, CollectionName, key);
-            return PostText(uri, value);
+            await PostText(uri, value);
         }
 
         /// <summary>
@@ -48,8 +52,7 @@ namespace VPSTour.lib.KVStore.io {
         /// </summary>
         /// <param name="uri"></param>
         /// <param name="text"></param>
-        /// <returns>True if successful. False otherwise</returns>
-        private async Task<bool> PostText(string uri, string text) {
+        private async Task PostText(string uri, string text) {
             var textBytes = Encoding.UTF8.GetBytes(text);
 
             using (var request = new UnityWebRequest(uri, "POST")) {
@@ -60,8 +63,7 @@ namespace VPSTour.lib.KVStore.io {
 
                 await request.SendWebRequest().WaitAsync();
 
-                var result = HandleResult(request);
-                return result != null;
+                HandleResult(request);
             }
         }
 
@@ -70,8 +72,7 @@ namespace VPSTour.lib.KVStore.io {
         /// </summary>
         /// <param name="uri"></param>
         /// <param name="text"></param>
-        /// <returns>true if successful. False otherwise</returns>
-        private async Task<bool> PutText(string uri, string text) {
+        private async Task PutText(string uri, string text) {
             var textBytes = Encoding.UTF8.GetBytes(text);
 
             using (var request = new UnityWebRequest(uri, "PUT")) {
@@ -82,8 +83,7 @@ namespace VPSTour.lib.KVStore.io {
 
                 await request.SendWebRequest().WaitAsync();
 
-                var result = HandleResult(request);
-                return result != null;
+                HandleResult(request);
             }
         }
 
@@ -101,26 +101,22 @@ namespace VPSTour.lib.KVStore.io {
         }
 
         /// <summary>
-        /// Handle any errors in the given finished request and return the string (or null on error)
+        /// Handle any errors in the given finished request and return the string
         /// of the response value
         /// </summary>
         /// <param name="request"></param>
-        /// <returns>the response string if successful. Null otherwise.</returns>
+        /// <returns>the response string</returns>
         /// <exception cref="Exception"></exception>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         private string HandleResult(UnityWebRequest request) {
             switch (request.result) {
+                case UnityWebRequest.Result.Success:
+                    return request.downloadHandler.text;
                 case UnityWebRequest.Result.ConnectionError:
                 case UnityWebRequest.Result.DataProcessingError:
-                    Debug.LogError("Error: " + request.error);
-                    return null;
+                    throw new Exception("Error: " + request.error);
                 case UnityWebRequest.Result.ProtocolError:
-                    Debug.LogError("HTTP Error: " + request.error);
-                    return null;
-                case UnityWebRequest.Result.Success:
-                    // Uncomment for debugging purposes
-                    // Debug.Log("Received: " + request.downloadHandler.text);
-                    return request.downloadHandler.text;
+                    throw new Exception("HTTP Error: " + request.error);
                 case UnityWebRequest.Result.InProgress:
                     throw new Exception("Result not available");
                 default:
