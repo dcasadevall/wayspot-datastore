@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace VPSTour.lib.Async {
+namespace VPSTour.lib.KVStore.Async {
     public static class AsyncOperationExtensions {
         public static async Task WaitAsync<T>(this T asyncOperation) where T : AsyncOperation {
             while (!asyncOperation.isDone) {

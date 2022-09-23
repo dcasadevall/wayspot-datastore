@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace VPSTour.lib.Async {
+namespace VPSTour.lib.KVStore.Async {
     /// <summary>
     /// Provides an <see cref="INotifyCompletion"/> implementing wrapper for <see cref="AsyncOperation"/>.
     /// This allows us to use <see cref="AsyncOperation"/> with the Task system

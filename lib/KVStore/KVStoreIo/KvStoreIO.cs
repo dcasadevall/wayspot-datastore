@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
-using VPSTour.lib.Async;
+using VPSTour.lib.KVStore.Async;
 
 namespace VPSTour.lib.KVStore.KVStoreIo {
     /// <summary>
@@ -13,6 +15,7 @@ namespace VPSTour.lib.KVStore.KVStoreIo {
         private const string CollectionName = "wayspot_anchors";
         private const string CollectionsUri = "https://api.kvstore.io/collections";
         private const string KeyValueUriFormat = "https://api.kvstore.io/collections/{0}/items/{1}";
+        private const string GetValuesUriFormat = "https://api.kvstore.io/collections/{0}/item";
         
         private string apiKey;
         private bool isInit;
@@ -55,6 +58,17 @@ namespace VPSTour.lib.KVStore.KVStoreIo {
             var responseJson = await GetRequest(uri);
             var jsonValue = JsonUtility.FromJson<JsonValue>(responseJson);
             return jsonValue.value;
+        }
+
+        public async Task<IEnumerable<KeyValuePair<string, string>>> GetValues() {
+            if (!isInit) {
+                await Init();
+            }
+            
+            var uri = string.Format(GetValuesUriFormat, CollectionName);
+            var responseJson = await GetRequest(uri);
+            var jsonKeyValues = JsonUtility.FromJson<JsonKeyValue[]>(responseJson);
+            return jsonKeyValues.Select(x => new KeyValuePair<string, string>(x.key, x.value));
         }
 
         /// <inheritdoc cref="IKvStore.SetValue(string, string)"/>

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace VPSTour.lib.KVStore {
@@ -14,6 +15,13 @@ namespace VPSTour.lib.KVStore {
         /// <returns></returns>
         /// <exception cref="Exception">Thrown if an error is received from the server</exception>
         public Task<string> GetValue(string key);
+        
+        /// <summary>
+        /// Gets all Values in the store
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exception">Thrown if an error is received from the server</exception>
+        public Task<IEnumerable<KeyValuePair<string, string>>> GetValues();
 
         /// <summary>
         /// Sets the value for the given key
