@@ -2,6 +2,10 @@ using System;
 using System.Threading.Tasks;
 
 namespace VPSTour.lib.KVStore.io {
+    /// <summary>
+    /// Implementations of this interface will handle reading / writing from and to a
+    /// key value store. Implementations are assumed to be thread safe.
+    /// </summary>
     public interface IKvStore {
         /// <summary>
         /// Gets the value for the given key

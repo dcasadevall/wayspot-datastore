@@ -1,13 +1,13 @@
 using System;
-using System.Collections;
 using System.Text;
 using System.Threading.Tasks;
-using Niantic.ARDK.Utilities;
-using UnityEngine;
 using UnityEngine.Networking;
 using VPSTour.lib.Async;
 
 namespace VPSTour.lib.KVStore.io {
+    /// <summary>
+    /// <see cref="IKvStore"/> Implementation that uses KVStore.io REST API
+    /// </summary>
     public class KvStoreIO : IKvStore {
         private const string CollectionName = "wayspot_anchors";
         private const string CollectionCreateUri = "https://api.kvstore.io/collections";
