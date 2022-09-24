@@ -99,6 +99,7 @@ namespace VPSTour.Demo {
 
         /// Saves all of the existing wayspot anchors
         public async void SaveWayspotAnchors() {
+            _statusLog.text = $"Saving {_wayspotAnchorTrackers.Count} Wayspot Anchors.";
             if (_wayspotAnchorTrackers.Count > 0) {
                 var wayspotAnchors = WayspotAnchorService.GetAllWayspotAnchors();
 
@@ -134,6 +135,7 @@ namespace VPSTour.Demo {
             // Commented code from original sample that saves payloads locally
             // var payloads = WayspotAnchorDataUtility.LoadLocalPayloads();
             Debug.Log("Restoring Wayspot Anchors...");
+            _statusLog.text = "Restoring Anchors...";
             var payloads = await Providers.ProvidePayloadStore().Restore();
             
             if (payloads.Length > 0) {

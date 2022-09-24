@@ -25,7 +25,7 @@ namespace VPSTour.lib.KVStore.KVStoreIo {
         /// <returns></returns>
         /// <exception cref="Exception">Thrown if KvStoreConfig is not properly created</exception>
         public static string GetApiKey() {
-            var kvStoreConfigs = Resources.LoadAll<KvStoreConfig>(MenuName);
+            var kvStoreConfigs = Resources.LoadAll<KvStoreConfig>("");
             if (kvStoreConfigs.Length > 1) {
                 var errorMessage = "There are multiple KvStoreConfig in Resources/ " +
                                    "directories, loading the first API key found. Remove extra" +
@@ -34,7 +34,7 @@ namespace VPSTour.lib.KVStore.KVStoreIo {
             }
 
             if (kvStoreConfigs.Length == 0) {
-                throw new Exception($"Could not load an KvStoreConfig, please add one in a Resources/ directory");
+                throw new Exception($"Could not load a KvStoreConfig, please add one in a Resources/ directory");
             }
 
             if (string.IsNullOrEmpty(kvStoreConfigs[0].apiKey)) {

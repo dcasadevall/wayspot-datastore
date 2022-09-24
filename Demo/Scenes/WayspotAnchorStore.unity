@@ -465,9 +465,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: Niantic.ARDKExamples.WayspotAnchors.WayspotAnchorDemo,
-          ARDK-Examples
+      - m_Target: {fileID: 459035104}
+        m_TargetAssemblyTypeName: VPSTour.Demo.WayspotStoreExampleManager, Assembly-CSharp
         m_MethodName: ClearAnchorGameObjects
         m_Mode: 1
         m_Arguments:
@@ -947,9 +946,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: Niantic.ARDKExamples.WayspotAnchors.WayspotAnchorExampleManager,
-          ARDK-Examples
+      - m_Target: {fileID: 459035104}
+        m_TargetAssemblyTypeName: VPSTour.Demo.WayspotStoreExampleManager, Assembly-CSharp
         m_MethodName: RestartWayspotAnchorService
         m_Mode: 1
         m_Arguments:
@@ -1448,9 +1446,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: Niantic.ARDKExamples.WayspotAnchors.WayspotAnchorDemo,
-          ARDK-Examples
+      - m_Target: {fileID: 459035104}
+        m_TargetAssemblyTypeName: VPSTour.Demo.WayspotStoreExampleManager, Assembly-CSharp
         m_MethodName: LoadWayspotAnchors
         m_Mode: 1
         m_Arguments:
@@ -1582,9 +1579,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: Niantic.ARDKExamples.WayspotAnchors.WayspotAnchorExampleManager,
-          ARDK-Examples
+      - m_Target: {fileID: 459035104}
+        m_TargetAssemblyTypeName: VPSTour.Demo.WayspotStoreExampleManager, Assembly-CSharp
         m_MethodName: PauseARSession
         m_Mode: 1
         m_Arguments:
@@ -1776,9 +1772,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: Niantic.ARDKExamples.WayspotAnchors.WayspotAnchorExampleManager,
-          ARDK-Examples
+      - m_Target: {fileID: 459035104}
+        m_TargetAssemblyTypeName: VPSTour.Demo.WayspotStoreExampleManager, Assembly-CSharp
         m_MethodName: ResumeARSession
         m_Mode: 1
         m_Arguments:
@@ -2003,9 +1998,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: Niantic.ARDKExamples.WayspotAnchors.WayspotAnchorDemo,
-          ARDK-Examples
+      - m_Target: {fileID: 459035104}
+        m_TargetAssemblyTypeName: VPSTour.Demo.WayspotStoreExampleManager, Assembly-CSharp
         m_MethodName: SaveWayspotAnchors
         m_Mode: 1
         m_Arguments:

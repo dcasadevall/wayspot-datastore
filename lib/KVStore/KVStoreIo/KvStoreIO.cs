@@ -14,8 +14,9 @@ namespace VPSTour.lib.KVStore.KVStoreIo {
     public class KvStoreIO : IKvStore {
         private const string CollectionName = "wayspot_anchors";
         private const string CollectionsUri = "https://api.kvstore.io/collections";
+        private const string CollectionFormat = "https://api.kvstore.io/collections/{0}";
         private const string KeyValueUriFormat = "https://api.kvstore.io/collections/{0}/items/{1}";
-        private const string GetValuesUriFormat = "https://api.kvstore.io/collections/{0}/item";
+        private const string GetValuesUriFormat = "https://api.kvstore.io/collections/{0}/items";
         
         private string apiKey;
         private bool isInit;
@@ -32,20 +33,14 @@ namespace VPSTour.lib.KVStore.KVStoreIo {
         /// Initializes the KVStore.IO collection if needed
         /// </summary>
         private async Task Init() {
-            // Find out if collection exists
-            var responseJson = await GetRequest(CollectionsUri);
-
-            
-            // This is definitely hacky, but hey kvstore.io free tier only allows
-            // 1 collection so we make assumptions and say that if the response
-            // contains the collection name, it must be created.
-            // This allows us to simplify the json parsing
-            var collectionList = JsonUtility.FromJson<JsonCollectionList>(responseJson);
-            if (collectionList.total_collections == 1) {
+            var collectionExists = await CollectionExists();
+            if (collectionExists) {
+                isInit = true;
                 return;
             }
             
             await PostJson(CollectionsUri, $"{{\"collection\" : \"{CollectionName}\"}}");
+            isInit = true;
         }
 
         /// <inheritdoc cref="IKvStore.GetValue(string)"/>
@@ -67,6 +62,10 @@ namespace VPSTour.lib.KVStore.KVStoreIo {
             
             var uri = string.Format(GetValuesUriFormat, CollectionName);
             var responseJson = await GetRequest(uri);
+            if (responseJson == "[]") {
+                return new KeyValuePair<string,string>[] { };
+            }
+            
             var jsonKeyValues = JsonUtility.FromJson<JsonKeyValue[]>(responseJson);
             return jsonKeyValues.Select(x => new KeyValuePair<string, string>(x.key, x.value));
         }
@@ -82,7 +81,15 @@ namespace VPSTour.lib.KVStore.KVStoreIo {
         }
 
         public async Task DeleteAllKeys() {
-            await DeleteRequest(CollectionsUri); 
+            // This does perform an extra RPC
+            // Not the most efficient but works for prototyping
+            var collectionExists = await CollectionExists();
+            if (!collectionExists) {
+                return;
+            }
+            
+            var uri = string.Format(CollectionFormat, CollectionName);
+            await DeleteRequest(uri); 
             
             // Set init back to false so the collection is created again when handling keys
             isInit = false;
@@ -167,7 +174,7 @@ namespace VPSTour.lib.KVStore.KVStoreIo {
         private string HandleResult(UnityWebRequest request) {
             switch (request.result) {
                 case UnityWebRequest.Result.Success:
-                    return request.downloadHandler.text;
+                    return request.downloadHandler?.text;
                 case UnityWebRequest.Result.ConnectionError:
                 case UnityWebRequest.Result.DataProcessingError:
                     throw new Exception($"{request.uri}. Error: {request.error}");
@@ -178,6 +185,19 @@ namespace VPSTour.lib.KVStore.KVStoreIo {
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        private async Task<bool> CollectionExists() {
+            // Find out if collection exists
+            var responseJson = await GetRequest(CollectionsUri);
+
+            
+            // This is definitely hacky, but hey kvstore.io free tier only allows
+            // 1 collection so we make assumptions and say that if the response
+            // contains the collection name, it must be created.
+            // This allows us to simplify the json parsing
+            var collectionList = JsonUtility.FromJson<JsonCollectionList>(responseJson);
+            return collectionList.total_collections == 1;
         }
     }
 }
