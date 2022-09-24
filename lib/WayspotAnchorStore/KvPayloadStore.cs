@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Niantic.ARDK.AR.WayspotAnchors;
+using UnityEngine;
 using VPSTour.lib.KVStore;
 
 namespace VPSTour.lib.WayspotAnchorStore {
@@ -18,6 +19,7 @@ namespace VPSTour.lib.WayspotAnchorStore {
             foreach (var anchor in wayspotAnchors) {
                 var id = anchor.ID.ToString();
                 var serializedPayload = anchor.Payload.Serialize();
+                Debug.Log("Saving: " + id);
                 
                 // This performs a call to our KVStore which can take a while
                 // Usually, key value stores will perform an RPC
@@ -25,6 +27,7 @@ namespace VPSTour.lib.WayspotAnchorStore {
                 // one would want to choose a key value store that allows
                 // for batch set values
                 await kvStore.SetValue(id, serializedPayload);
+                Debug.Log("Saved: " + id);
             }
         }
 

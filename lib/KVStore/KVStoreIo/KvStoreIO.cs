@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using UnityEngine;
 using UnityEngine.Networking;
 using VPSTour.lib.KVStore.Async;
 
@@ -17,6 +16,7 @@ namespace VPSTour.lib.KVStore.KVStoreIo {
         private const string CollectionFormat = "https://api.kvstore.io/collections/{0}";
         private const string KeyValueUriFormat = "https://api.kvstore.io/collections/{0}/items/{1}";
         private const string GetValuesUriFormat = "https://api.kvstore.io/collections/{0}/items";
+        private const string CollectionsJsonKey = "collections";
         
         private string apiKey;
         private bool isInit;
@@ -51,8 +51,8 @@ namespace VPSTour.lib.KVStore.KVStoreIo {
             
             var uri = string.Format(KeyValueUriFormat, CollectionName, key);
             var responseJson = await GetRequest(uri);
-            var jsonValue = JsonUtility.FromJson<JsonValue>(responseJson);
-            return jsonValue.value;
+            var response = SimpleJSON.JSON.Parse(responseJson);
+            return response["value"];
         }
 
         public async Task<IEnumerable<KeyValuePair<string, string>>> GetValues() {
@@ -62,12 +62,9 @@ namespace VPSTour.lib.KVStore.KVStoreIo {
             
             var uri = string.Format(GetValuesUriFormat, CollectionName);
             var responseJson = await GetRequest(uri);
-            if (responseJson == "[]") {
-                return new KeyValuePair<string,string>[] { };
-            }
+            var response = SimpleJSON.JSONNode.Parse(responseJson);
             
-            var jsonKeyValues = JsonUtility.FromJson<JsonKeyValue[]>(responseJson);
-            return jsonKeyValues.Select(x => new KeyValuePair<string, string>(x.key, x.value));
+            return response.Children.Select(x => new KeyValuePair<string, string>(x["key"], x["value"]));
         }
 
         /// <inheritdoc cref="IKvStore.SetValue(string, string)"/>
@@ -188,16 +185,10 @@ namespace VPSTour.lib.KVStore.KVStoreIo {
         }
 
         private async Task<bool> CollectionExists() {
-            // Find out if collection exists
             var responseJson = await GetRequest(CollectionsUri);
 
-            
-            // This is definitely hacky, but hey kvstore.io free tier only allows
-            // 1 collection so we make assumptions and say that if the response
-            // contains the collection name, it must be created.
-            // This allows us to simplify the json parsing
-            var collectionList = JsonUtility.FromJson<JsonCollectionList>(responseJson);
-            return collectionList.total_collections == 1;
+            var response = SimpleJSON.JSON.Parse(responseJson);
+            return response.HasKey(CollectionsJsonKey) && response[CollectionsJsonKey].HasKey(CollectionName);
         }
     }
 }

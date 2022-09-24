@@ -117,7 +117,9 @@ namespace VPSTour.Demo {
                 // This sample always overrides persisted anchors with whatever anchors
                 // exist in the scene, so clear the whole store before we save the local
                 // anchors to it.
+                _statusLog.text = "Clearing Store";
                 await Providers.ProvidePayloadStore().Clear();
+                _statusLog.text = "Saving anchors";
                 await Providers.ProvidePayloadStore().Persist(saveableAnchors.ToArray());
             } else {
                 //---------------------- Store Logic ----------------------//
@@ -151,6 +153,7 @@ namespace VPSTour.Demo {
             } else {
                 _statusLog.text = "No anchors to load.";
             }
+            Debug.Log("Restored");
         }
 
         /// Clears all of the active wayspot anchors
