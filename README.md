@@ -49,8 +49,13 @@ and restore them at any point in time with `IPayloadStore.Restore()`
 
 # Sample
 
-TODO
+This repository comes with a modified version of the ARDK sample `WayspotAnchorSample` in `Demo/Scenes/WayspotAnchorStore`.
+The class `WayspotStoreExampleManager` is a carbon copy of `WayspotAnchorExampleManager`, except for the places
+commented with `Store Logic`. This should give a good idea of where to use the `IPayloadStore`
 
 # Using another remote Datastore
 
+If you wanted to use something like Firebase rather than `KVStore.io`, you could create a different implementation of
+`IKVStore` that connects to that service. You would then change the bindings in `Providers.cs` to use your new implementation
+when providing the `IKVStore` to the payload store.
 TODO
